@@ -12,44 +12,19 @@ document.querySelectorAll('[data-link]').forEach(a => {
   if (links[a.dataset.link]) a.href = links[a.dataset.link];
 });
 
+// Keep the decorative animation looping without an on-page pause control.
 const video = document.querySelector('.orb-video');
 const art = document.querySelector('.orb-art');
-const control = document.querySelector('.motion-control');
-const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-let manuallyPaused = false;
-const label = () => {
-  const text = video.paused ? 'Play animation' : 'Pause animation';
-  control.textContent = text;
-  control.setAttribute('aria-label', text);
-};
-video.addEventListener('playing', () => {
-  art.classList.add('is-playing');
-  control.hidden = false;
-  label();
-});
-video.addEventListener('pause', label);
-video.addEventListener('error', () => {
-  art.classList.remove('is-playing');
-  control.hidden = true;
-});
-control.addEventListener('click', () => {
-  manuallyPaused = !video.paused;
-  if (video.paused) video.play().catch(() => {});
-  else video.pause();
-});
-const observer = new IntersectionObserver(entries => {
-  const visible = entries[0].isIntersecting;
-  if (visible && !manuallyPaused && !reducedMotion.matches) video.play().catch(() => {});
-  else video.pause();
-}, {rootMargin:'150px'});
-observer.observe(art);
-const respectMotion = () => {
-  if (reducedMotion.matches) { video.pause(); art.classList.remove('is-playing'); control.hidden = true; }
-  else if (!manuallyPaused && art.getBoundingClientRect().top < innerHeight + 150 && art.getBoundingClientRect().bottom > -150) video.play().catch(() => {});
-};
-reducedMotion.addEventListener('change', respectMotion);
-respectMotion();
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) video.pause();
-  else if (!manuallyPaused && !reducedMotion.matches && art.getBoundingClientRect().top < innerHeight + 150 && art.getBoundingClientRect().bottom > -150) video.play().catch(() => {});
-});
+if (video && art) {
+  video.muted = true;
+  video.loop = true;
+  video.autoplay = true;
+  const play = () => video.play().catch(() => {});
+  video.addEventListener('playing', () => art.classList.add('is-playing'));
+  video.addEventListener('error', () => art.classList.remove('is-playing'));
+  video.querySelectorAll('source').forEach(source => source.addEventListener('error', () => art.classList.remove('is-playing')));
+  video.addEventListener('canplay', play);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) play(); });
+  play();
+}
+
