@@ -143,3 +143,28 @@
   .button{transition:none}
 }
 
+
+
+/* Transparent hand/orb loop: preserve the entire 2048 x 1852 frame. */
+.bonus{--orb-bleed:200px}
+.bonus .orb-art{min-width:0}
+.bonus .orb-art>.orb-poster,
+.bonus .orb-art>.orb-video{
+  inset:auto;left:0;top:50%;width:100%;height:calc(100% + var(--orb-bleed));
+  max-width:100%;max-height:none;object-fit:contain;object-position:center;
+  padding:8px;transform:translateY(-50%);background:transparent;
+  border-radius:0;pointer-events:none;
+}
+@media(min-width:1000px) and (max-width:1199px){.bonus{--orb-bleed:140px}}
+@media(max-width:999px){
+  .bonus{--orb-bleed:0px}
+  .bonus .orb-art{
+    width:100%;max-width:440px;height:auto;min-height:0;
+    aspect-ratio:2048/1852;align-self:center;
+  }
+  .bonus .orb-art>.orb-poster,
+  .bonus .orb-art>.orb-video{
+    inset:0;width:100%;height:100%;padding:4px;transform:none;
+  }
+}
+
